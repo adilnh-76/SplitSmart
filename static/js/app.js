@@ -50,20 +50,12 @@ document.addEventListener('DOMContentLoaded', () => {
     if (codeBadge) {
         codeBadge.addEventListener('click', async () => {
             const codeText = codeBadge.querySelector('span').innerText.trim();
-            const groupUrl = window.location.href;
             
             try {
-                // Try copying the full URL first to make sharing extremely friction-free
-                await navigator.clipboard.writeText(groupUrl);
-                showToast("Copied group link to clipboard!", "success");
+                await navigator.clipboard.writeText(codeText);
+                showToast("Copied group code to clipboard!", "success");
             } catch (err) {
-                // Fallback: Copy just the code
-                try {
-                    await navigator.clipboard.writeText(codeText);
-                    showToast("Copied group code to clipboard!", "success");
-                } catch (fallbackErr) {
-                    showToast("Could not copy code. Please copy from the address bar.", "error");
-                }
+                showToast("Could not copy code. Please copy manually.", "error");
             }
         });
     }
