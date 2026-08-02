@@ -1,0 +1,91 @@
+{% extends "base.html" %}
+{% block title %}SplitSmart — Split Bills, Not Friendships{% endblock %}
+
+{% block content %}
+<div class="landing">
+    <!-- Hero Section -->
+    <header class="hero">
+        <div class="hero-badge">
+            <i data-lucide="sparkles" class="icon-sm"></i>
+            <span>Smart Debt Simplification</span>
+        </div>
+        <h1 class="hero-title">
+            Split<span class="gradient-text">Smart</span>
+        </h1>
+        <p class="hero-subtitle">
+            Track group expenses effortlessly. Our algorithm minimises the number of transactions needed to settle up —
+            so you can focus on the fun, not the math.
+        </p>
+    </header>
+
+    <!-- Cards Row -->
+    <div class="action-cards">
+        <!-- Create Group Card -->
+        <div class="glass-card card-create" id="card-create">
+            <div class="card-icon-wrap">
+                <i data-lucide="plus-circle" class="card-icon"></i>
+            </div>
+            <h2>Create a Group</h2>
+            <p class="card-desc">Start a new expense group for your trip, flat, or dinner party.</p>
+
+            <form action="{{ url_for('create_group') }}" method="POST" class="card-form" id="form-create">
+                <div class="input-group">
+                    <label for="group_name">Group Name</label>
+                    <input type="text" id="group_name" name="group_name" placeholder="e.g. Goa Trip 2026" required
+                        autocomplete="off">
+                </div>
+                <div class="input-group">
+                    <label for="participants">Participants <span class="label-hint">(comma-separated)</span></label>
+                    <input type="text" id="participants" name="participants" placeholder="Adarsh, Tanmay, Alice, Bob"
+                        required autocomplete="off">
+                </div>
+                <button type="submit" class="btn btn-primary" id="btn-create">
+                    <i data-lucide="rocket" class="icon-sm"></i>
+                    Create Group
+                </button>
+            </form>
+        </div>
+
+        <!-- Join Group Card -->
+        <div class="glass-card card-join" id="card-join">
+            <div class="card-icon-wrap card-icon-wrap--alt">
+                <i data-lucide="log-in" class="card-icon"></i>
+            </div>
+            <h2>Join a Group</h2>
+            <p class="card-desc">Already have a group code? Jump right in and start tracking.</p>
+
+            <form action="{{ url_for('join_group') }}" method="POST" class="card-form" id="form-join">
+                <div class="input-group">
+                    <label for="code">Group Code</label>
+                    <input type="text" id="code" name="code" placeholder="e.g. A3F9K2" maxlength="8" required
+                        autocomplete="off" class="code-input">
+                </div>
+                <button type="submit" class="btn btn-secondary" id="btn-join">
+                    <i data-lucide="arrow-right-circle" class="icon-sm"></i>
+                    Join Group
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Feature Pills -->
+    <div class="feature-pills">
+        <div class="pill">
+            <i data-lucide="zap" class="icon-sm"></i>
+            <span>Instant Settle-Up</span>
+        </div>
+        <div class="pill">
+            <i data-lucide="shield-check" class="icon-sm"></i>
+            <span>No Sign-Up Required</span>
+        </div>
+        <div class="pill">
+            <i data-lucide="share-2" class="icon-sm"></i>
+            <span>Shareable Links</span>
+        </div>
+        <div class="pill">
+            <i data-lucide="minimize-2" class="icon-sm"></i>
+            <span>Min. Transactions</span>
+        </div>
+    </div>
+</div>
+{% endblock %}

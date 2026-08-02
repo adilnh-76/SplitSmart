@@ -1,0 +1,214 @@
+{% extends "base.html" %}
+{% block title %}{{ group.name }} — SplitSmart{% endblock %}
+
+{% block content %}
+<div class="dashboard">
+    <!-- Header -->
+    <header class="dash-header">
+        <a href="{{ url_for('index') }}" class="back-link" id="back-home">
+            <i data-lucide="arrow-left" class="icon-sm"></i>
+            <span>Home</span>
+        </a>
+        <div class="dash-title-row">
+            <h1 id="group-title">{{ group.name }}</h1>
+            <div class="code-badge" id="group-code-badge" title="Click to copy">
+                <i data-lucide="copy" class="icon-xs"></i>
+                <span>{{ group.code }}</span>
+            </div>
+        </div>
+    </header>
+
+    <!-- Stats Strip -->
+    <div class="stats-strip">
+        <div class="stat-card glass-card-sm" id="stat-members">
+            <i data-lucide="users" class="stat-icon"></i>
+            <div class="stat-body">
+                <span class="stat-value">{{ participants | length }}</span>
+                <span class="stat-label">Members</span>
+            </div>
+        </div>
+        <div class="stat-card glass-card-sm" id="stat-expenses">
+            <i data-lucide="receipt" class="stat-icon"></i>
+            <div class="stat-body">
+                <span class="stat-value">{{ expenses | length }}</span>
+                <span class="stat-label">Expenses</span>
+            </div>
+        </div>
+        <div class="stat-card glass-card-sm" id="stat-total">
+            <i data-lucide="indian-rupee" class="stat-icon"></i>
+            <div class="stat-body">
+                <span class="stat-value">₹{{ "%.2f" | format(total_spent) }}</span>
+                <span class="stat-label">Total Spent</span>
+            </div>
+        </div>
+        <div class="stat-card glass-card-sm" id="stat-txns">
+            <i data-lucide="git-merge" class="stat-icon"></i>
+            <div class="stat-body">
+                <span class="stat-value">{{ transactions | length }}</span>
+                <span class="stat-label">Settle-ups</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Grid -->
+    <div class="dash-grid">
+        <!-- Left Column: Expenses -->
+        <section class="glass-card section-expenses" id="section-expenses">
+            <div class="section-header">
+                <h2>
+                    <i data-lucide="list" class="icon-sm"></i>
+                    Expense Ledger
+                </h2>
+                <button class="btn btn-sm btn-accent" id="btn-show-add-expense" onclick="toggleExpenseForm()">
+                    <i data-lucide="plus" class="icon-xs"></i>
+                    Add Expense
+                </button>
+            </div>
+
+            <!-- Add Expense Form (hidden by default) -->
+            <div class="expense-form-wrap" id="expense-form-wrap" style="display:none;">
+                <form action="{{ url_for('add_expense', code=group.code) }}" method="POST" class="expense-form" id="form-add-expense">
+                    <div class="form-row">
+                        <div class="input-group flex-1">
+                            <label for="description">What was it for?</label>
+                            <input type="text" id="description" name="description" placeholder="e.g. Dinner at Olive" required autocomplete="off">
+                        </div>
+                        <div class="input-group flex-shrink">
+                            <label for="amount">Amount (₹)</label>
+                            <input type="number" id="amount" name="amount" min="0.01" step="0.01" placeholder="0.00" required>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="input-group flex-1">
+                            <label for="paid_by">Paid by</label>
+                            <select id="paid_by" name="paid_by" required>
+                                <option value="" disabled selected>Select payer</option>
+                                {% for p in participants %}
+                                <option value="{{ p.name }}">{{ p.name }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="input-group flex-1">
+                            <label for="split_type">Split</label>
+                            <select id="split_type" name="split_type" onchange="toggleCustomSplit(this.value)">
+                                <option value="equal">Equal (everyone)</option>
+                                <option value="custom">Custom</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- Custom split checkboxes -->
+                    <div class="custom-split" id="custom-split" style="display:none;">
+                        <label class="split-label">Split among:</label>
+                        <div class="checkbox-group">
+                            {% for p in participants %}
+                            <label class="checkbox-pill">
+                                <input type="checkbox" id="split_{{ p.id }}" name="split_among" value="{{ p.name }}">
+                                <span>{{ p.name }}</span>
+                            </label>
+                            {% endfor %}
+                        </div>
+                    </div>
+
+                    <div class="form-actions">
+                        <button type="button" class="btn btn-ghost" onclick="toggleExpenseForm()">Cancel</button>
+                        <button type="submit" class="btn btn-primary" id="btn-submit-expense">
+                            <i data-lucide="check" class="icon-xs"></i>
+                            Add Expense
+                        </button>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Expense List -->
+            {% if expenses %}
+            <ul class="expense-list" id="expense-list">
+                {% for e in expenses %}
+                <li class="expense-item">
+                    <div class="expense-info">
+                        <span class="expense-desc">{{ e.description }}</span>
+                        <span class="expense-meta">
+                            <strong>{{ e.paid_by }}</strong> paid
+                            <span class="expense-amount">₹{{ "%.2f" | format(e.amount) }}</span>
+                            · split {{ e.split_list() | length }} ways
+                        </span>
+                    </div>
+                    <form action="{{ url_for('delete_expense', code=group.code, expense_id=e.id) }}" method="POST" class="expense-delete-form" onsubmit="return confirm('Delete this expense?');">
+                        <button type="submit" class="btn-icon btn-danger-ghost" title="Delete" id="del-expense-{{ e.id }}">
+                            <i data-lucide="trash-2" class="icon-xs"></i>
+                        </button>
+                    </form>
+                </li>
+                {% endfor %}
+            </ul>
+            {% else %}
+            <div class="empty-state">
+                <i data-lucide="file-plus" class="empty-icon"></i>
+                <p>No expenses yet. Add one to get started!</p>
+            </div>
+            {% endif %}
+        </section>
+
+        <!-- Right Column: Balances & Settle Up -->
+        <aside class="dash-sidebar">
+            <!-- Balances -->
+            <section class="glass-card section-balances" id="section-balances">
+                <h2>
+                    <i data-lucide="bar-chart-3" class="icon-sm"></i>
+                    Balances
+                </h2>
+                <ul class="balance-list">
+                    {% for name, bal in balances.items() %}
+                    <li class="balance-item">
+                        <span class="balance-name">{{ name }}</span>
+                        <div class="balance-bar-wrap">
+                            {% set pct = ((bal | abs) / max_balance * 100) %}
+                            <div class="balance-bar {% if bal >= 0 %}bar-positive{% else %}bar-negative{% endif %}"
+                                 data-pct="{{ pct }}"
+                                 data-amount="{{ '%.2f' | format(bal) }}">
+                            </div>
+                        </div>
+                        <span class="balance-value {% if bal > 0 %}text-positive{% elif bal < 0 %}text-negative{% else %}text-neutral{% endif %}">
+                            {% if bal > 0 %}+{% endif %}₹{{ "%.2f" | format(bal) }}
+                        </span>
+                    </li>
+                    {% endfor %}
+                </ul>
+            </section>
+
+            <!-- Settle Up -->
+            <section class="glass-card section-settle" id="section-settle">
+                <h2>
+                    <i data-lucide="handshake" class="icon-sm"></i>
+                    Settle Up
+                </h2>
+                {% if transactions %}
+                <ul class="txn-list">
+                    {% for t in transactions %}
+                    <li class="txn-item">
+                        <div class="txn-flow">
+                            <span class="txn-from">{{ t['from'] }}</span>
+                            <div class="txn-arrow">
+                                <i data-lucide="move-right" class="icon-sm"></i>
+                                <span class="txn-amount">₹{{ "%.2f" | format(t.amount) }}</span>
+                            </div>
+                            <span class="txn-to">{{ t.to }}</span>
+                        </div>
+                    </li>
+                    {% endfor %}
+                </ul>
+                <p class="txn-summary">
+                    <i data-lucide="sparkles" class="icon-xs"></i>
+                    Only <strong>{{ transactions | length }}</strong> transaction{{ 's' if transactions | length != 1 }} needed to settle all debts!
+                </p>
+                {% else %}
+                <div class="empty-state empty-settle">
+                    <i data-lucide="check-circle-2" class="empty-icon"></i>
+                    <p>All settled! No pending transactions.</p>
+                </div>
+                {% endif %}
+            </section>
+        </aside>
+    </div>
+</div>
+{% endblock %}
