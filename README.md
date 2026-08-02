@@ -6,6 +6,17 @@ SplitSmart is a full-stack, no-authentication group expense tracker. It models a
 
 Featuring a premium **Forest Emerald & Mint Glassmorphic UI** design.
 
+## 📸 Screenshots
+
+### 🖥️ Landing Page
+![Landing Page](./screenshots/landing_page.png)
+
+### 📊 Group Dashboard (with Ledger, Balances & Settle Up flow)
+![Group Dashboard](./screenshots/dashboard_active.png)
+
+### ➕ Add Expense Form (Custom Splits)
+![Add Expense Form](./screenshots/dashboard_add_expense.png)
+
 ---
 
 ## 🚀 Features
