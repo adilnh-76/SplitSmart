@@ -2,6 +2,8 @@
 
 SplitSmart is a full-stack, no-authentication group expense tracker. It models a group's expenses and simplifies debts using a **greedy max-heap-based settlement algorithm** (minimizing the number of transactions to settle all debts).
 
+🔗 **Live Demo:** [https://split-smart-gules.vercel.app/](https://split-smart-gules.vercel.app/)
+
 Featuring a premium **Forest Emerald & Mint Glassmorphic UI** design.
 
 ---
