@@ -87,11 +87,19 @@ def create_group():
 
 @app.route("/join", methods=["POST"])
 def join_group():
-    """Redirect to group dashboard using a shared code."""
-    code = request.form.get("code", "").strip().upper()
-    if not code:
+    """Redirect to group dashboard using a shared code or full URL."""
+    raw_code = request.form.get("code", "").strip().upper()
+    if not raw_code:
         flash("Please enter a group code.", "error")
         return redirect(url_for("index"))
+    
+    # Auto-extract code if they paste the full URL/link
+    code = raw_code
+    if "/G/" in raw_code:
+        parts = raw_code.split("/G/")
+        if len(parts) > 1:
+            code = parts[1].split("?")[0].split("/")[0].strip()
+
     group = Group.query.filter_by(code=code).first()
     if not group:
         flash(f'No group found with code "{code}".', "error")
