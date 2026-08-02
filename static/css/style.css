@@ -321,6 +321,15 @@ select {
     width: 100%;
 }
 
+select option {
+    background-color: #0c1916;
+    color: var(--text-main);
+}
+
+select option:disabled {
+    color: var(--text-muted);
+}
+
 input:focus,
 select:focus {
     outline: none;
